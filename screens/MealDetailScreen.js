@@ -1,16 +1,19 @@
-import { useContext, useLayoutEffect } from 'react';
-import { StyleSheet, Text, View, Image, ScrollView, Button } from 'react-native';
+import { useLayoutEffect } from 'react';
+import { StyleSheet, Text, View, Image, ScrollView } from 'react-native';
 
 import { MEALS } from '../data/dummy-data';
 import MealDetails from '../components/MealDetails';
 import Subtitle from '../components/MealDetail/Subtitle';
 import List from '../components/MealDetail/List';
 import IconButton from '../components/IconButton';
-import { FavoritesContext } from '../store/context/favoritesContext';
+
+import { useDispatch, useSelector } from 'react-redux';
+import { addFavorite, removeFavorite } from '../store/redux/favoritesSlice';
 
 export default function MealDetailsScreen({ route, navigation }) {
-  //connect context
-  const favoriteMealsCtx = useContext(FavoritesContext);
+  //get data out of redux store
+  const favoriteMealIds = useSelector(state => state.favoriteMeals.ids);
+  const dispatch = useDispatch();
 
   //give access to params, that has been set to this route
   const mealId = route.params.mealId;
@@ -19,14 +22,14 @@ export default function MealDetailsScreen({ route, navigation }) {
   const selectedMeal = MEALS.find(meal => meal.id === mealId);
 
   //check if there is in ids array a mealId
-  const mealIsFavorite = favoriteMealsCtx.ids.includes(mealId);
+  const mealIsFavorite = favoriteMealIds.includes(mealId);
 
   //add or remove meals from favorites
   function changeFavoriteStatusHandler() {
     if (mealIsFavorite) {
-      favoriteMealsCtx.removeFavorite(mealId);
+      dispatch(removeFavorite({ id: mealId }));
     } else {
-      favoriteMealsCtx.addFavorite(mealId);
+      dispatch(addFavorite({ id: mealId }));
     }
   }
 
